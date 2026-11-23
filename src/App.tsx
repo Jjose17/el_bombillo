@@ -23,10 +23,46 @@ const groups = [
 ];
 
 const modules = [
-  { id: "artes-plasticas", name: "Artes Plásticas", price: "$50.000" },
-  { id: "exploracion-musical", name: "Exploración Musical", price: "$50.000" },
-  { id: "cocina", name: "Cocina", price: "$65.000" },
-  { id: "escritura-creativa", name: "Escritura Creativa", price: "$60.000" },
+  {
+    id: "artes-plasticas",
+    name: "Artes Plásticas",
+    price: "$50.000",
+    status: "Inscripciones abiertas",
+    schedule: "Martes 10:00 – 11:30 a. m.",
+    dayOfWeek: "Martes",
+    calendarDays: [3, 10, 17, 24],
+    desc: "Exploración de dibujo, pintura, técnicas mixtas y composición visual.",
+  },
+  {
+    id: "exploracion-musical",
+    name: "Exploración Musical",
+    price: "$50.000",
+    status: "En progreso",
+    schedule: "Miércoles 10:00 – 11:30 a. m.",
+    dayOfWeek: "Miércoles",
+    calendarDays: [4, 11, 18, 25],
+    desc: "Ritmo, escucha activa, texturas sonoras y ensamble colectivo.",
+  },
+  {
+    id: "cocina",
+    name: "Cocina",
+    price: "$65.000",
+    status: "En progreso",
+    schedule: "Jueves 3:00 – 4:30 p. m.",
+    dayOfWeek: "Jueves",
+    calendarDays: [5, 12, 19, 26],
+    desc: "Alquimia culinaria, recetas sensoriales y exploración de ingredientes.",
+  },
+  {
+    id: "escritura-creativa",
+    name: "Escritura Creativa",
+    price: "$60.000",
+    status: "Inscripciones abiertas",
+    schedule: "Sábados 10:00 – 11:30 a. m.",
+    dayOfWeek: "Sábados",
+    calendarDays: [7, 14, 21, 28],
+    desc: "Relato gráfico, creación de fanzines, poesía visual y bitácora.",
+  },
 ];
 
 const classes = [
@@ -585,12 +621,12 @@ function Home({ go }: { go: (p: Page) => void }) {
           </div>
           <div className="module-orbit reveal-group">
             {modules.map((module, index) => (
-  <div key={module.id}>
-    <span>0{index + 1}</span>
-    <strong>{module.name}</strong>
-    <small>{module.price} · Finalizado</small>
-  </div>
-))}
+              <div key={module.id}>
+                <span>0{index + 1}</span>
+                <strong>{module.name}</strong>
+                <small>{module.price} · {module.status}</small>
+              </div>
+            ))}
             <svg aria-hidden="true" viewBox="0 0 500 300">
               <path d="M15 156 C120 16 207 282 309 107 C358 23 411 66 485 128" />
             </svg>
@@ -1183,8 +1219,13 @@ function Contact({ purpose = "general" }: { purpose?: "general" | "space" }) {
 function Agenda({ go }: { go: (p: Page) => void }) {
   const [view, setView] = useState<"list" | "calendar">("list");
   const [group, setGroup] = useState("martes");
-  const [expanded, setExpanded] = useState(true);
   const [moduleFilter, setModuleFilter] = useState("all");
+
+  const filteredModules =
+    moduleFilter === "all"
+      ? modules
+      : modules.filter((m) => m.id === moduleFilter);
+
   return (
     <main>
       <section className="agenda-head">
@@ -1194,11 +1235,12 @@ function Agenda({ go }: { go: (p: Page) => void }) {
           <br />
           <em>no una hora suelta.</em>
         </h1>
-        <p>Consulta las cuatro clases de cada módulo y solicita cupo para el proceso completo.</p>
+        <p>Consulta las clases de cada módulo y solicita cupo para el proceso completo.</p>
         <div className="demo-strip">
-          Datos de demostración · No corresponden a programación real
+          Programación activa · Noviembre 2026
         </div>
       </section>
+
       <section className="agenda-group-switch" aria-label="Seleccionar grupo">
         {groups.map((g) => (
           <button
@@ -1211,17 +1253,26 @@ function Agenda({ go }: { go: (p: Page) => void }) {
           </button>
         ))}
       </section>
+
       <section className="agenda-tools">
         <div className="filters">
-          <select aria-label="Módulo" value={moduleFilter} onChange={e => setModuleFilter(e.target.value)}>
+          <select
+            aria-label="Módulo"
+            value={moduleFilter}
+            onChange={(e) => setModuleFilter(e.target.value)}
+          >
             <option value="all">Todos los módulos</option>
-            <option value="one">Módulo 1</option>
+            {modules.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
           </select>
           <select aria-label="Mes">
             <option>Noviembre 2026</option>
           </select>
           <span className="result-count">
-            {group === "martes" ? (moduleFilter === "all" ? "2 módulos encontrados" : "1 módulo encontrado") : "Sin programación publicada"}
+            {filteredModules.length} {filteredModules.length === 1 ? "módulo encontrado" : "módulos encontrados"}
           </span>
         </div>
         <div className="view-toggle">
@@ -1236,34 +1287,34 @@ function Agenda({ go }: { go: (p: Page) => void }) {
           </button>
         </div>
       </section>
-      {group !== "martes" ? (
-        <section className="empty-state reveal">
-          <Icon name="calendar" size={40} />
-          <h2>Programación por confirmar</h2>
-          <p>Este grupo todavía no tiene módulos publicados.</p>
-          <Button kind="outline" onClick={() => setGroup("martes")}>
-            Ver grupo del martes
-          </Button>
+
+      {view === "list" ? (
+        <section className="module-list">
+          {filteredModules.map((module) => (
+            <article className="module-card" key={module.id} style={{ opacity: 1 }}>
+              <div className="module-summary">
+                <div>
+                  <Badge tone={module.status === "Inscripciones abiertas" ? "default" : "yellow"}>
+                    {module.status}
+                  </Badge>
+                  <span className="kicker">Servicio · {module.dayOfWeek}</span>
+                  <h2>{module.name}</h2>
+                  <p>{module.desc}</p>
+                  <small style={{ display: "block", marginTop: "0.4rem", color: "#666" }}>
+                    {module.schedule} · 4 clases
+                  </small>
+                </div>
+                <div className="price">
+                  <strong>{module.price}</strong>
+                  <span>COP</span>
+                  <div style={{ marginTop: "1rem" }}>
+                    <Button onClick={() => go("solicitud")}>Solicitar cupo</Button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
         </section>
-      ) : view === "list" ? (
-<section className="module-list">
-  {modules.map((module) => (
-    <article className="module-card muted" key={module.id}>
-      <div className="module-summary">
-        <div>
-          <Badge tone="dark">Finalizado</Badge>
-          <span className="kicker">Servicio</span>
-          <h2>{module.name}</h2>
-          <p>Fechas por confirmar · Noviembre 2026</p>
-        </div>
-        <div className="price">
-          <strong>{module.price}</strong>
-          <span>COP</span>
-        </div>
-      </div>
-    </article>
-  ))}
-</section>
       ) : (
         <Calendar go={go} />
       )}
@@ -1273,22 +1324,35 @@ function Agenda({ go }: { go: (p: Page) => void }) {
 
 function Calendar({ go }: { go: (p: Page) => void }) {
   const days = Array.from({ length: 35 }, (_, i) => i - 1);
+
+  const getEventForDay = (day: number) => {
+    for (const mod of modules) {
+      if (mod.calendarDays.includes(day)) {
+        return {
+          name: mod.name,
+          time: mod.schedule.split(" ")[1] || "10:00",
+        };
+      }
+    }
+    return null;
+  };
+
   return (
     <section className="calendar">
       <div className="calendar-top">
         <button
           disabled
-          title="Mes único en la demostración"
+          title="Mes actual en la demostración"
           aria-label="Mes anterior no disponible"
         >
           ←
         </button>
         <h2>
-          Noviembre 2026 <small>Datos de demostración</small>
+          Noviembre 2026 <small>Programación en curso</small>
         </h2>
         <button
           disabled
-          title="Mes único en la demostración"
+          title="Mes actual en la demostración"
           aria-label="Mes siguiente no disponible"
         >
           →
@@ -1300,19 +1364,23 @@ function Calendar({ go }: { go: (p: Page) => void }) {
         ))}
       </div>
       <div className="days">
-        {days.map((d, i) => (
-          <div className={d < 1 || d > 31 ? "outside" : ""} key={i}>
-            <span>{d < 1 || d > 31 ? "" : d}</span>
-            {[7, 14, 21, 28].includes(d) && (
-              <button
-                onClick={() => go("modulo")}
-                aria-label={`${d} de Noviembre, Formas de mirar a las 10:00`}
-              >
-                <b>10:00</b> Formas de mirar
-              </button>
-            )}
-          </div>
-        ))}
+        {days.map((d, i) => {
+          const event = d >= 1 && d <= 30 ? getEventForDay(d) : null;
+          return (
+            <div className={d < 1 || d > 30 ? "outside" : ""} key={i}>
+              <span>{d < 1 || d > 30 ? "" : d}</span>
+              {event && (
+                <button
+                  onClick={() => go("modulo")}
+                  aria-label={`${d} de Noviembre, ${event.name}`}
+                  style={{ textAlign: "left", width: "100%" }}
+                >
+                  <b>{event.time}</b> {event.name}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -1335,14 +1403,15 @@ function Workshop({ go }: { go: (p: Page) => void }) {
         <div>
           <h2>Sobre el taller</h2>
           <p>
-            Este texto funciona como plantilla para un taller general. La descripción definitiva,
-            docente, fechas, horarios y valor deben completarse con información real.
+            Un laboratorio continuo donde exploramos dibujo gestual, color, volumen y 
+            técnicas mixtas sobre papel y soporte tridimensional. Diseñado para potenciar 
+            la observación y el pensamiento plástico.
           </p>
           <h3>¿Qué exploraremos?</h3>
           <ul>
-            <li>Observación y registro</li>
-            <li>Línea, ritmo y composición</li>
-            <li>Bitácora de proceso</li>
+            <li>Observación sensible y bitácora de proceso</li>
+            <li>Línea, ritmo, composición y técnicas mixtas</li>
+            <li>Muestra de procesos creativos y diálogo grupal</li>
           </ul>
         </div>
         <aside>
@@ -1584,6 +1653,8 @@ function Admin({ go }: { go: (p: Page) => void }) {
   const [saved, setSaved] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [editorVersion, setEditorVersion] = useState(0);
+  const [selectedModuleId, setSelectedModuleId] = useState(modules[0].id);
+  const currentModule = modules.find((m) => m.id === selectedModuleId) || modules[0];
   const save = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -1688,55 +1759,58 @@ function Admin({ go }: { go: (p: Page) => void }) {
           <div className="admin-editor">
             <div className="editor-list">
               <div>
-                <h2>Módulos</h2>
+                <h2>Módulos ({modules.length})</h2>
                 <button disabled title="Creación no incluida en esta demostración">
                   <Icon name="plus" /> Nuevo
                 </button>
               </div>
-              <button className="selected">
-                <Badge>Abiertas</Badge>
-                <strong>Módulo 1 · Formas de mirar</strong>
-                <small>4 clases · Grupo martes</small>
-              </button>
-              <button disabled title="Programación todavía no editable">
-                <Badge tone="yellow">Próximamente</Badge>
-                <strong>Módulo 2 · Imágenes que cuentan</strong>
-                <small>Sin fechas confirmadas</small>
-              </button>
+              {modules.map((m) => (
+                <button
+                  key={m.id}
+                  className={selectedModuleId === m.id ? "selected" : ""}
+                  onClick={() => setSelectedModuleId(m.id)}
+                >
+                  <Badge tone={m.status === "Inscripciones abiertas" ? "default" : "yellow"}>
+                    {m.status}
+                  </Badge>
+                  <strong>{m.name}</strong>
+                  <small>{m.schedule} · 4 clases</small>
+                </button>
+              ))}
             </div>
-            <div className="editor-form" key={editorVersion}>
+            <div className="editor-form" key={`${editorVersion}-${currentModule.id}`}>
               <div className="editor-title">
                 <div>
-                  <span className="kicker">Grupo martes · 6 a 10 años</span>
-                  <h2>Editar módulo</h2>
+                  <span className="kicker">Gestión de programa activo · {currentModule.dayOfWeek}</span>
+                  <h2>Editar: {currentModule.name}</h2>
                 </div>
-                <button disabled title="Opciones no incluidas en esta demostración">
-                  Más opciones
+                <button onClick={save} style={{ background: "#222", color: "#fff", padding: "0.4rem 0.8rem", borderRadius: "4px", cursor: "pointer" }}>
+                  {saved ? "¡Guardado!" : "Guardar cambios"}
                 </button>
               </div>
               <div className="two-fields">
                 <label>
                   Nombre del módulo
-                  <input defaultValue="Formas de mirar" />
+                  <input defaultValue={currentModule.name} />
                 </label>
                 <label>
                   Estado
-                  <select defaultValue="Abiertas">
-                    <option>Abiertas</option>
+                  <select defaultValue={currentModule.status}>
+                    <option>Inscripciones abiertas</option>
+                    <option>En progreso</option>
                     <option>Próximamente</option>
-                    <option>Cerradas</option>
                     <option>Sin cupos</option>
                   </select>
                 </label>
               </div>
               <label>
                 Descripción
-                <textarea defaultValue="Una exploración de color, materia, volumen y relato." />
+                <textarea defaultValue={currentModule.desc} />
               </label>
               <div className="two-fields">
                 <label>
                   Precio COP
-                  <input defaultValue="250000" />
+                  <input defaultValue={currentModule.price.replace(/[^0-9]/g, "")} />
                 </label>
                 <label>
                   Capacidad <small>Opcional</small>
