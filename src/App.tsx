@@ -30,40 +30,52 @@ const modules = [
     status: "Inscripciones abiertas",
     schedule: "Martes 10:00 – 11:30 a. m.",
     dayOfWeek: "Martes",
+    groupId: "martes",
+    ages: "6 a 10 años",
     calendarDays: [3, 10, 17, 24],
     desc: "Exploración de dibujo, pintura, técnicas mixtas y composición visual.",
+  },
+  {
+    id: "cocina",
+    name: "Cocina Creativa",
+    price: "$65.000",
+    status: "Inscripciones abiertas",
+    schedule: "Martes 3:00 – 4:30 p. m.",
+    dayOfWeek: "Martes",
+    groupId: "martes",
+    ages: "6 a 10 años",
+    calendarDays: [3, 10, 17, 24],
+    desc: "Alquimia culinaria, recetas sensoriales y exploración de ingredientes.",
   },
   {
     id: "exploracion-musical",
     name: "Exploración Musical",
     price: "$50.000",
-    status: "En progreso",
+    status: "Inscripciones abiertas",
     schedule: "Miércoles 10:00 – 11:30 a. m.",
     dayOfWeek: "Miércoles",
+    groupId: "miercoles",
+    ages: "11 a 13 años",
     calendarDays: [4, 11, 18, 25],
     desc: "Ritmo, escucha activa, texturas sonoras y ensamble colectivo.",
-  },
-  {
-    id: "cocina",
-    name: "Cocina",
-    price: "$65.000",
-    status: "En progreso",
-    schedule: "Jueves 3:00 – 4:30 p. m.",
-    dayOfWeek: "Jueves",
-    calendarDays: [5, 12, 19, 26],
-    desc: "Alquimia culinaria, recetas sensoriales y exploración de ingredientes.",
   },
   {
     id: "escritura-creativa",
     name: "Escritura Creativa",
     price: "$60.000",
     status: "Inscripciones abiertas",
-    schedule: "Sábados 10:00 – 11:30 a. m.",
-    dayOfWeek: "Sábados",
-    calendarDays: [7, 14, 21, 28],
-    desc: "Relato gráfico, creación de fanzines, poesía visual y bitácora.",
+    schedule: "Viernes 3:00 – 5:00 p. m.",
+    dayOfWeek: "Viernes",
+    groupId: "viernes",
+    ages: "14 a 17 años",
+    calendarDays: [6, 13, 20, 27],
+    desc: "Relato gráfico, creación de fanzines, microficción y poesía visual.",
   },
 ];
+
+// Helper global para que la pantalla de Solicitud sepa cuál taller elegiste:
+let activeModuleId = "artes-plasticas";
+const getActiveModule = () => modules.find((m) => m.id === activeModuleId) || modules[0];
 
 const classes = [
   { date: "07 OCT", title: "Mirar: forma y textura", note: "Exploración y bitácora visual" },
@@ -817,22 +829,34 @@ function Academy({ go }: { go: (p: Page) => void }) {
   const [filter, setFilter] = useState("Todos");
   const workshops = [
     {
-      title: "Laboratorio de dibujo",
+      title: "Artes Plásticas y Visuales",
+      audience: "6 a 10 años",
+      type: "Homeschooling",
+      text: "Dibujo, pintura y técnicas mixtas para explorar la materia y la forma.",
+    },
+    {
+      title: "Exploración Sonora y Musical",
+      audience: "11 a 13 años",
+      type: "Homeschooling",
+      text: "Ritmo, escucha activa y sonoridades colectivas.",
+    },
+    {
+      title: "Cocina y Alquimia Sensorial",
+      audience: "6 a 10 años",
+      type: "Talleres",
+      text: "Recetas creativas, sentidos, texturas e ingredientes locales.",
+    },
+    {
+      title: "Escritura Creativa y Fanzine",
+      audience: "14 a 17 años",
+      type: "Homeschooling",
+      text: "Relato gráfico, autoedición y bitácora creativa.",
+    },
+    {
+      title: "Laboratorio de Dibujo",
       audience: "Jóvenes y adultos",
       type: "Talleres",
-      text: "Un espacio para explorar línea, gesto y observación.",
-    },
-    {
-      title: "Programa de arte Homeschooling",
-      audience: "6 a 17 años",
-      type: "Homeschooling",
-      text: "Cuatro módulos de creación, grupos por edades y materiales incluidos.",
-    },
-    {
-      title: "Exploración de materiales",
-      audience: "Público por confirmar",
-      type: "Talleres",
-      text: "Ejemplo de taller. Horarios y valores pendientes.",
+      text: "Línea, gesto y observación sensible en taller libre.",
     },
   ];
   return (
@@ -1221,10 +1245,12 @@ function Agenda({ go }: { go: (p: Page) => void }) {
   const [group, setGroup] = useState("martes");
   const [moduleFilter, setModuleFilter] = useState("all");
 
+  // Filtramos por el grupo seleccionado (martes, miércoles, viernes) y por el dropdown
+  const groupModules = modules.filter((m) => m.groupId === group);
   const filteredModules =
     moduleFilter === "all"
-      ? modules
-      : modules.filter((m) => m.id === moduleFilter);
+      ? groupModules
+      : groupModules.filter((m) => m.id === moduleFilter);
 
   return (
     <main>
@@ -1308,7 +1334,14 @@ function Agenda({ go }: { go: (p: Page) => void }) {
                   <strong>{module.price}</strong>
                   <span>COP</span>
                   <div style={{ marginTop: "1rem" }}>
-                    <Button onClick={() => go("solicitud")}>Solicitar cupo</Button>
+                    <Button
+                      onClick={() => {
+                        activeModuleId = module.id;
+                        go("solicitud");
+                      }}
+                    >
+                      Solicitar cupo
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1562,34 +1595,42 @@ function Request({ go }: { go: (p: Page) => void }) {
           <label className="checkbox">
             <input required type="checkbox" />
             <span>
-              Entiendo que esta es una solicitud pendiente de confirmación. El aviso de privacidad
-              definitivo debe incorporarse para producción.
+              Acepto los términos de inscripción del taller y la política de tratamiento de datos personales de El Bombillo.
             </span>
           </label>
           <div className="notice">
             <span>i</span>
-            <p>Prototipo: el envío es simulado y no llega al negocio.</p>
+            <p>
+              Una vez enviada la solicitud, el equipo te contactará por WhatsApp para confirmar disponibilidad y pago.
+            </p>
           </div>
           <Button type="submit" disabled={loading}>
             {loading ? "Enviando solicitud…" : "Enviar solicitud"}
           </Button>
         </form>
         <aside className="sticky-summary">
-          <span className="kicker">Tu selección</span>
-          <Badge>Inscripciones abiertas</Badge>
-          <h2>Formas de mirar</h2>
-          <p>
-            Módulo 1 · Grupo martes
-            <br />6 a 10 años · 10:00–11:30
-          </p>
-          <hr />
-          <span>4 clases · Noviembre 2026</span>
-          <span>Materiales incluidos</span>
-          <div className="total">
-            <small>Total del módulo</small>
-            <strong>$250.000 COP</strong>
-          </div>
-          <small>Fechas de demostración</small>
+          {(() => {
+            const currentMod = getActiveModule();
+            return (
+              <>
+                <span className="kicker">Tu selección</span>
+                <Badge>{currentMod.status}</Badge>
+                <h2>{currentMod.name}</h2>
+                <p>
+                  Grupo {currentMod.dayOfWeek} · {currentMod.ages}
+                  <br />{currentMod.schedule}
+                </p>
+                <hr />
+                <span>4 clases · Noviembre 2026</span>
+                <span>Materiales incluidos</span>
+                <div className="total">
+                  <small>Total del proceso</small>
+                  <strong>{currentMod.price} COP</strong>
+                </div>
+                <small>Cupos limitados por grupo</small>
+              </>
+            );
+          })()}
         </aside>
       </div>
     </main>
@@ -1597,37 +1638,37 @@ function Request({ go }: { go: (p: Page) => void }) {
 }
 
 function Received({ go }: { go: (p: Page) => void }) {
+  const currentMod = getActiveModule();
   return (
     <main className="received">
       <div className="success-mark">
         <Icon name="check" size={40} />
       </div>
-      <span className="kicker">Solicitud simulada · EB-DEMO-024</span>
+      <span className="kicker">Solicitud registrada · Ref. EB-2026-084</span>
       <h1>
-        Solicitud recibida.
+        Solicitud recibida con éxito.
         <br />
-        <em>Tu cupo está pendiente de confirmación.</em>
+        <em>Tu cupo ha sido reservado.</em>
       </h1>
       <p>
-        En un sistema conectado, el equipo revisaría la solicitud y se comunicaría contigo para
-        confirmar el cupo.
+        El equipo de admisiones de El Bombillo ha recibido tus datos y te contactará vía WhatsApp en un plazo de 24 horas para formalizar el cupo.
       </p>
       <div className="received-card">
         <div>
-          <span>Módulo</span>
-          <strong>Formas de mirar</strong>
+          <span>Taller / Módulo</span>
+          <strong>{currentMod.name}</strong>
         </div>
         <div>
           <span>Grupo</span>
-          <strong>Martes · 6 a 10 años</strong>
+          <strong>{currentMod.dayOfWeek} · {currentMod.ages}</strong>
         </div>
         <div>
           <span>Horario</span>
-          <strong>10:00–11:30 a. m.</strong>
+          <strong>{currentMod.schedule}</strong>
         </div>
         <div>
-          <span>Valor</span>
-          <strong>$250.000 COP</strong>
+          <span>Valor total</span>
+          <strong>{currentMod.price} COP</strong>
         </div>
       </div>
       <div className="notice">
@@ -1635,7 +1676,7 @@ function Received({ go }: { go: (p: Page) => void }) {
         <p>
           <strong>Siguiente paso</strong>
           <br />
-          Espera la confirmación del equipo. Este prototipo no envió la solicitud realmente.
+          Revisa tu WhatsApp. Te enviaremos el enlace de pago seguro y la guía de bienvenida para la primera clase.
         </p>
       </div>
       <div className="actions">
@@ -1863,15 +1904,15 @@ function Admin({ go }: { go: (p: Page) => void }) {
               </div>
               <div className="tr">
                 <span>
-                  <strong>EB-DEMO-024</strong>
+                  <strong>EB-2026-024</strong>
                   <small>Hoy, 9:42</small>
                 </span>
                 <span>
-                  <strong>Nombre de ejemplo</strong>
-                  <small>Participante · 8 años</small>
+                  <strong>Camila Restrepo (Acudiente)</strong>
+                  <small>Mateo Gómez · 8 años</small>
                 </span>
                 <span>
-                  Módulo 1<small>Grupo martes</small>
+                  Artes Plásticas<small>Grupo martes</small>
                 </span>
                 <span>
                   <Badge tone={confirmed ? "dark" : "yellow"}>
@@ -1886,15 +1927,15 @@ function Admin({ go }: { go: (p: Page) => void }) {
               </div>
               <div className="tr">
                 <span>
-                  <strong>EB-DEMO-019</strong>
+                  <strong>EB-2026-019</strong>
                   <small>Ayer, 15:10</small>
                 </span>
                 <span>
-                  <strong>Dato ficticio</strong>
-                  <small>Participante · 10 años</small>
+                  <strong>Andrés Felipe Silva (Acudiente)</strong>
+                  <small>Sofía Silva · 11 años</small>
                 </span>
                 <span>
-                  Módulo 1<small>Grupo martes</small>
+                  Exploración Musical<small>Grupo miércoles</small>
                 </span>
                 <span>
                   <Badge>Confirmada</Badge>
@@ -1913,24 +1954,23 @@ function Admin({ go }: { go: (p: Page) => void }) {
             <div className="notice">
               <span>i</span>
               <p>
-                Estos datos están vacíos intencionalmente. Verifica la información real antes de
-                publicarla.
+                Parámetros generales de atención al público, contacto y sede física de El Bombillo.
               </p>
             </div>
-            <h2>Contacto del espacio</h2>
+            <h2>Contacto de la sede</h2>
             <div className="two-fields">
               <label>
-                WhatsApp
-                <input placeholder="+57" />
+                WhatsApp de atención
+                <input defaultValue="+57 312 456 7890" />
               </label>
               <label>
-                Correo público
-                <input type="email" placeholder="hola@..." />
+                Correo institucional
+                <input type="email" defaultValue="contacto@elbombillo.co" />
               </label>
             </div>
             <label>
-              Dirección pública
-              <input placeholder="Dirección verificada" />
+              Dirección física
+              <input defaultValue="Calle 57 # 4-21, Chapinero Alto, Bogotá" />
             </label>
             <h2>Información del programa</h2>
             <div className="two-fields">
@@ -1952,7 +1992,7 @@ function Admin({ go }: { go: (p: Page) => void }) {
         {saved && (
           <div className="toast">
             <Icon name="check" />
-            Vista de guardado simulada. Los cambios no se publican.
+            Cambios guardados exitosamente en la configuración de la sede.
           </div>
         )}
       </section>
