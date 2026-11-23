@@ -22,6 +22,13 @@ const groups = [
   { id: "viernes", day: "Viernes", ages: "14 a 17 años", status: "Programación por confirmar" },
 ];
 
+const modules = [
+  { id: "artes-plasticas", name: "Artes Plásticas", price: "$50.000" },
+  { id: "exploracion-musical", name: "Exploración Musical", price: "$50.000" },
+  { id: "cocina", name: "Cocina", price: "$65.000" },
+  { id: "escritura-creativa", name: "Escritura Creativa", price: "$60.000" },
+];
+
 const classes = [
   { date: "07 OCT", title: "Mirar: forma y textura", note: "Exploración y bitácora visual" },
   { date: "14 OCT", title: "Componer: color y ritmo", note: "Collage y teoría del color" },
@@ -577,13 +584,13 @@ function Home({ go }: { go: (p: Page) => void }) {
             </div>
           </div>
           <div className="module-orbit reveal-group">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n}>
-                <span>0{n}</span>
-                <strong>Módulo {n}</strong>
-                <small>4 clases</small>
-              </div>
-            ))}
+            {modules.map((module, index) => (
+  <div key={module.id}>
+    <span>0{index + 1}</span>
+    <strong>{module.name}</strong>
+    <small>{module.price} · Finalizado</small>
+  </div>
+))}
             <svg aria-hidden="true" viewBox="0 0 500 300">
               <path d="M15 156 C120 16 207 282 309 107 C358 23 411 66 485 128" />
             </svg>
@@ -1211,7 +1218,7 @@ function Agenda({ go }: { go: (p: Page) => void }) {
             <option value="one">Módulo 1</option>
           </select>
           <select aria-label="Mes">
-            <option>Octubre 2026</option>
+            <option>Noviembre 2026</option>
           </select>
           <span className="result-count">
             {group === "martes" ? (moduleFilter === "all" ? "2 módulos encontrados" : "1 módulo encontrado") : "Sin programación publicada"}
@@ -1239,63 +1246,24 @@ function Agenda({ go }: { go: (p: Page) => void }) {
           </Button>
         </section>
       ) : view === "list" ? (
-        <section className="module-list">
-          <article className={`module-card ${expanded ? "expanded" : ""}`}>
-            <div className="module-summary">
-              <div>
-                <Badge>Inscripciones abiertas</Badge>
-                <span className="kicker">Módulo 1 · Grupo martes</span>
-                <h2>Formas de mirar</h2>
-                <p>Una exploración de color, materia, volumen y relato.</p>
-                <button
-                  className="expand-module"
-                  onClick={() => setExpanded(!expanded)}
-                  aria-expanded={expanded}
-                >
-                  {expanded ? "Ocultar las 4 clases" : "Ver las 4 clases"}{" "}
-                  <span>{expanded ? "−" : "+"}</span>
-                </button>
-              </div>
-              <div className="price">
-                <strong>$250.000</strong>
-                <span>COP · módulo completo</span>
-                <small>Materiales incluidos</small>
-              </div>
-            </div>
-            <div className="class-list" aria-hidden={!expanded} inert={!expanded}>
-              {classes.map((c, i) => (
-                <button onClick={() => go("modulo")} key={c.date}>
-                  <span>{i + 1}</span>
-                  <strong>{c.date}</strong>
-                  <div>
-                    {c.title}
-                    <small>{c.note}</small>
-                  </div>
-                  <time>10:00–11:30</time>
-                  <Icon name="arrow" />
-                </button>
-              ))}
-            </div>
-            <div className="module-actions">
-              <span>4 clases · 6 a 10 años · Martes</span>
-              <Button onClick={() => go("modulo")}>Ver módulo</Button>
-            </div>
-          </article>
-          <article className="module-card muted" hidden={moduleFilter === "one"}>
-            <div className="module-summary">
-              <div>
-                <Badge tone="yellow">Próximamente</Badge>
-                <span className="kicker">Módulo 2 · Grupo martes</span>
-                <h2>Imágenes que cuentan</h2>
-                <p>Fechas y temas de ejemplo pendientes de confirmación.</p>
-              </div>
-              <div className="price">
-                <strong>$250.000</strong>
-                <span>COP · módulo completo</span>
-              </div>
-            </div>
-          </article>
-        </section>
+<section className="module-list">
+  {modules.map((module) => (
+    <article className="module-card muted" key={module.id}>
+      <div className="module-summary">
+        <div>
+          <Badge tone="dark">Finalizado</Badge>
+          <span className="kicker">Servicio</span>
+          <h2>{module.name}</h2>
+          <p>Fechas por confirmar · Noviembre 2026</p>
+        </div>
+        <div className="price">
+          <strong>{module.price}</strong>
+          <span>COP</span>
+        </div>
+      </div>
+    </article>
+  ))}
+</section>
       ) : (
         <Calendar go={go} />
       )}
@@ -1316,7 +1284,7 @@ function Calendar({ go }: { go: (p: Page) => void }) {
           ←
         </button>
         <h2>
-          Octubre 2026 <small>Datos de demostración</small>
+          Noviembre 2026 <small>Datos de demostración</small>
         </h2>
         <button
           disabled
@@ -1338,7 +1306,7 @@ function Calendar({ go }: { go: (p: Page) => void }) {
             {[7, 14, 21, 28].includes(d) && (
               <button
                 onClick={() => go("modulo")}
-                aria-label={`${d} de octubre, Formas de mirar a las 10:00`}
+                aria-label={`${d} de Noviembre, Formas de mirar a las 10:00`}
               >
                 <b>10:00</b> Formas de mirar
               </button>
