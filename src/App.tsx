@@ -526,7 +526,7 @@ function Home({ go }: { go: (p: Page) => void }) {
                 <span className="event-date">
                   <b>{item.date.split(" ")[0]}</b>
                   {item.date.split(" ")[1]}
-                  <small>2025</small>
+                  <small>2026</small>
                 </span>
                 <span className="event-type">{i === 2 ? "Encuentro" : "Homeschooling"}</span>
                 <span className="event-name">
@@ -1211,7 +1211,7 @@ function Agenda({ go }: { go: (p: Page) => void }) {
             <option value="one">Módulo 1</option>
           </select>
           <select aria-label="Mes">
-            <option>Octubre 2025</option>
+            <option>Octubre 2026</option>
           </select>
           <span className="result-count">
             {group === "martes" ? (moduleFilter === "all" ? "2 módulos encontrados" : "1 módulo encontrado") : "Sin programación publicada"}
@@ -1316,7 +1316,7 @@ function Calendar({ go }: { go: (p: Page) => void }) {
           ←
         </button>
         <h2>
-          Octubre 2025 <small>Datos de demostración</small>
+          Octubre 2026 <small>Datos de demostración</small>
         </h2>
         <button
           disabled
@@ -1546,7 +1546,7 @@ function Request({ go }: { go: (p: Page) => void }) {
             <br />6 a 10 años · 10:00–11:30
           </p>
           <hr />
-          <span>4 clases · Octubre 2025</span>
+          <span>4 clases · Noviembre 2026</span>
           <span>Materiales incluidos</span>
           <div className="total">
             <small>Total del módulo</small>

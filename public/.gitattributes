@@ -1,2 +1,5 @@
-# AgentPlat packages this default favicon directly from source without LFS hydration.
-favicon.png -filter -diff -merge -text
+# Do not use Git LFS for public assets so they deploy directly to hosting platforms like Vercel
+* -filter -diff -merge -text
+*/* -filter -diff -merge -text
+**/* -filter -diff -merge -text
+
